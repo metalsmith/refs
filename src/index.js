@@ -1,4 +1,4 @@
-import { relative, dirname, isAbsolute } from 'path'
+import { relative, dirname, isAbsolute, normalize } from 'path'
 import get from 'dlv'
 
 /**
@@ -34,7 +34,7 @@ function refs(options) {
     function srcRelPath(subdir, path) {
       if (isAbsolute(path)) path = path.slice(1)
       const referringPath = metalsmith.path(metalsmith.source(), subdir)
-      return relative(metalsmith.source(), metalsmith.path(referringPath, path))
+      return relative(metalsmith.source(), metalsmith.path(referringPath, normalize(path)))
     }
 
     const meta = metalsmith.metadata()
@@ -53,13 +53,9 @@ function refs(options) {
     })
 
     if (withRefs.length) debug('Processing refs for %s file(s)', withRefs.length)
-    else debug.warn('No files with "refs" defined".')
+    else debug.warn('No files with "refs" defined.')
 
     while (withRefs.length) {
-      /**
-       * @type {Object} file
-       * @property {Object<string, string>} file.refs
-       */
       const [path, file] = withRefs.shift()
 
       Object.entries(file.refs).forEach(([name, ref]) => {

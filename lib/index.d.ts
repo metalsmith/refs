@@ -1,10 +1,14 @@
-import { Plugin } from 'metalsmith';
-
 export default refs;
 export type Options = {
-    key: string;
+    /**
+     * Limit ref substitution by glob pattern to a subset of files
+     */
+    pattern?: string | string[];
 };
 /**
- * A Metalsmith plugin to serve as a boilerplate for other core plugins
+ * A metalsmith plugin to refer to other files and global metadata from a file's refs property
+ *
+ * @param {Options} options
+ * @returns {import('metalsmith').Plugin}
  */
-declare function refs(options: Options): Plugin;
+declare function refs(options: Options): import('metalsmith').Plugin;

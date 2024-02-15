@@ -49,7 +49,7 @@ describe('@metalsmith/refs', function () {
     equals(fixture('default/build'), fixture('default/expected'))
   })
 
-  it('should resolve absolute refs', async function () {
+  it('should resolve absolute refs to metalsmith.source()', async function () {
     await Metalsmith(fixture('absolute-refs')).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
     equals(fixture('absolute-refs/build'), fixture('absolute-refs/expected'))
   })

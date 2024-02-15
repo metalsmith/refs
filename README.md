@@ -137,7 +137,7 @@ metalsmith
         defaults: {
           refs: {
             docs_index: 'file:./docs/index.html',
-            globalLinks: metalsmith.metadata().globalLinks
+            globalLinks: 'metadata:globalLinks'
           }
         }
       }
