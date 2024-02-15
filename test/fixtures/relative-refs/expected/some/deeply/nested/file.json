@@ -1,0 +1,8 @@
+{
+  "refs": {
+    "about": {
+      "id": "about/index.html"
+    }
+  },
+  "id": "some/deeply/nested/file.html"
+}

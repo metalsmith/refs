@@ -83,7 +83,7 @@ When @metalsmith/refs runs, it will substitute the refs with the actual files:
 }
 ```
 
-The references are _references_, and not _clones_ of the targets they refer to, i.e. they will stay in sync when other plugins alter them later.
+The file references are _shallowly cloned_ from the targets they refer to _at the moment they are accessed_, i.e. they will be in sync when other plugins alter them later. To avoid circular references, you cannot access `file.refs.otherFile.refs`.
 
 As the example above shows, @metalsmith/refs will also add an `id` property to each processed file, unless you define an [explicit id](#custom-ids). By default the `id` is the file's path relative to metalsmith.source(), and with backslashes converted to forward slashes for cross-platform compatibility.
 

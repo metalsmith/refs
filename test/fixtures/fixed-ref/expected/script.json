@@ -1,8 +1,8 @@
 {
+  "id": "script",
   "refs": {
     "oneDeep": {
       "id": "some-custom-id"
     }
-  },
-  "id": "script.js"
+  }
 }

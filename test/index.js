@@ -54,6 +54,11 @@ describe('@metalsmith/refs', function () {
     equals(fixture('absolute-refs/build'), fixture('absolute-refs/expected'))
   })
 
+  it('should resolve relative and circular refs', async function () {
+    await Metalsmith(fixture('relative-refs')).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    equals(fixture('relative-refs/build'), fixture('relative-refs/expected'))
+  })
+
   it('should resolve refs as "file:" when no protocol is given', async function () {
     await Metalsmith(fixture('protocol-file-shortcut'))
       .env('DEBUG', process.env.DEBUG)

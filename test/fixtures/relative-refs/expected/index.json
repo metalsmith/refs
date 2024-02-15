@@ -1,3 +1,8 @@
 {
+  "refs": {
+    "deeplyNested": {
+      "id": "some/deeply/nested/file.html"
+    }
+  },
   "id": "index.html"
 }

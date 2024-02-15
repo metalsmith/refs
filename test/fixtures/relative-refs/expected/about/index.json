@@ -2,6 +2,9 @@
   "refs": {
     "home": {
       "id": "index.html"
+    },
+    "deeplyNested": {
+      "id": "some/deeply/nested/file.html"
     }
   },
   "id": "about/index.html"

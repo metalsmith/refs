@@ -1,3 +1,8 @@
 {
-  "id": "some-custom-id"
+  "id": "some-custom-id",
+  "refs": {
+    "mainscript": {
+      "id": "script"
+    }
+  }
 }

@@ -80,12 +80,35 @@ function refs(options) {
             file.refs[name] = resolved
             break
           case 'file':
-            resolved = srcRelPath(dirname(path), lookup)
-            file.refs[name] = files[resolved]
+            resolved = files[srcRelPath(dirname(path), lookup)]
+            if (resolved) {
+              Object.defineProperty(file.refs, name, {
+                get() {
+                  // eslint-disable-next-line no-unused-vars
+                  const { refs, ...allOthers } = resolved
+                  return allOthers
+                },
+                set(newRef) {
+                  resolved = newRef
+                }
+              })
+            }
             break
           case 'id':
             resolved = fileList.find((f) => f[1].id === lookup)
-            file.refs[name] = resolved[1]
+            if (resolved) {
+              resolved = resolved[1]
+              Object.defineProperty(file.refs, name, {
+                get() {
+                  // eslint-disable-next-line no-unused-vars
+                  const { refs, ...allOthers } = resolved
+                  return allOthers
+                },
+                set(newRef) {
+                  resolved = newRef
+                }
+              })
+            }
             break
           default:
             done(
