@@ -43,16 +43,16 @@
   "devDependencies": {
     "assert-dir-equal": "^1.1.0",
     "auto-changelog": "^2.4.0",
-    "c8": "^8.0.1",
+    "c8": "^9.1.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "metalsmith": "^2.6.2",
     "microbundle": "^0.15.1",
-    "mocha": "^10.2.0",
-    "prettier": "^3.2.4",
-    "release-it": "^17.0.3"
+    "mocha": "^10.3.0",
+    "prettier": "^3.2.5",
+    "release-it": "^17.1.1"
   },
   "peerDependencies": {
     "metalsmith": "^2.5.0"
@@ -70,7 +70,7 @@
     "test": "c8 mocha"
   },
   "engines": {
-    "node": ">=14.14.0"
+    "node": ">=14.18.0"
   },
   "publishConfig": {
     "access": "public"
