@@ -26,6 +26,7 @@ function toJSON(files) {
     const { stats, contents, ...others } = file
     const jsonPath = path.replace(/\..*?$/, '.json')
     files[jsonPath] = {
+      ...others,
       contents: JSON.stringify(others, null, 2)
     }
     delete files[path]
@@ -47,6 +48,27 @@ describe('@metalsmith/refs', function () {
     equals(fixture('default/build'), fixture('default/expected'))
     await Metalsmith(fixture('default')).env('DEBUG', process.env.DEBUG).use(plugin(true)).use(toJSON).build()
     equals(fixture('default/build'), fixture('default/expected'))
+  })
+
+  it('should provide reliable refs through a Proxy object', async function () {
+    const files = await Metalsmith(fixture('ref-proxy'))
+      .env('DEBUG', process.env.DEBUG)
+      .use(plugin())
+      .use(toJSON)
+      .build()
+    const ref = files['index.json'].refs.about
+    ref.temp = 'dynamic'
+    Object.defineProperty(ref, 'added', { value: 'test' })
+    delete ref.temp
+    assert.strictEqual('refs' in ref, false)
+    assert.strictEqual('about_title' in ref, true)
+    assert.strictEqual(ref.refs, undefined)
+    assert.strictEqual(ref.about_title, 'About')
+    assert.deepStrictEqual(Object.keys(ref), ['about_title', 'id', 'added'])
+    assert.throws(() => {
+      Object.defineProperty(ref, 'refs', { value: {} })
+    })
+    equals(fixture('ref-proxy/build'), fixture('ref-proxy/expected'))
   })
 
   it('should resolve absolute refs to metalsmith.source()', async function () {

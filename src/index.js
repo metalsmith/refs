@@ -21,6 +21,47 @@ function normalizeOptions(options = {}) {
   return Object.assign({}, defaults, options || {})
 }
 
+/** @type {ProxyHandler} */
+const refProxyHandler = {
+  get(target, key) {
+    if (key === 'refs') return undefined
+    return target[key]
+  },
+  has(target, key) {
+    if (key === 'refs') return false
+    return Reflect.has(target, key)
+  },
+  set(target, key, value) {
+    if (key !== 'refs') target[key] = value
+    return true
+  },
+  deleteProperty(target, key) {
+    if (key === 'refs' || !(key in target)) return false
+    return delete target[key]
+  },
+  ownKeys(target) {
+    return Object.keys(target).filter((k) => k !== 'refs')
+  },
+  defineProperty(target, key, descriptor) {
+    if (key === 'refs') return false
+    if (descriptor && 'value' in descriptor) {
+      target[key] = descriptor.value
+    }
+    return target
+  },
+  getOwnPropertyDescriptor(target, key) {
+    const value = target[key]
+    return value
+      ? {
+          value,
+          writable: true,
+          enumerable: true,
+          configurable: true
+        }
+      : undefined
+  }
+}
+
 /**
  * A metalsmith plugin to refer to other files and global metadata from a file's refs property
  *
@@ -78,32 +119,14 @@ function refs(options) {
           case 'file':
             resolved = files[srcRelPath(dirname(path), lookup)]
             if (resolved) {
-              Object.defineProperty(file.refs, name, {
-                get() {
-                  // eslint-disable-next-line no-unused-vars
-                  const { refs, ...allOthers } = resolved
-                  return allOthers
-                },
-                set(newRef) {
-                  resolved = newRef
-                }
-              })
+              file.refs[name] = new Proxy(resolved, refProxyHandler)
             }
             break
           case 'id':
             resolved = fileList.find((f) => f[1].id === lookup)
             if (resolved) {
               resolved = resolved[1]
-              Object.defineProperty(file.refs, name, {
-                get() {
-                  // eslint-disable-next-line no-unused-vars
-                  const { refs, ...allOthers } = resolved
-                  return allOthers
-                },
-                set(newRef) {
-                  resolved = newRef
-                }
-              })
+              file.refs[name] = new Proxy(resolved, refProxyHandler)
             }
             break
           default:
