@@ -49,8 +49,10 @@ describe('@metalsmith/refs', function () {
   })
 
   it('should not crash the metalsmith build when using default options', async function () {
-    let { actual, expected, dir } = fixture('default')
+    const { actual, expected, dir } = fixture('default')
     await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    equals(actual, expected)
+    await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin(null)).use(toJSON).build()
     equals(actual, expected)
     await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin(true)).use(toJSON).build()
     equals(actual, expected)
@@ -64,9 +66,11 @@ describe('@metalsmith/refs', function () {
     Object.defineProperty(ref, 'added', { value: 'test' })
     delete ref.temp
     assert.strictEqual('refs' in ref, false)
+    assert.throws(() => delete ref.refs)
     assert.strictEqual('about_title' in ref, true)
     assert.strictEqual(ref.refs, undefined)
     assert.strictEqual(ref.about_title, 'About')
+    assert.strictEqual(Object.getOwnPropertyDescriptor(ref, 'inexistant'), undefined)
     assert.deepStrictEqual(Object.keys(ref), ['about_title', 'id', 'added'])
     assert.throws(() => {
       Object.defineProperty(ref, 'refs', { value: {} })
@@ -119,7 +123,19 @@ describe('@metalsmith/refs', function () {
       const { dir } = fixture('invalid-protocol')
       await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
     } catch (err) {
-      const expected = '@metalsmith/refs - Unknown protocol "invalid-protocol" for file'
+      assert.strictEqual(err.name, '@metalsmith/refs')
+      const expected = 'Unknown protocol "invalid-protocol" for file'
+      assert.strictEqual(err.message.slice(0, expected.length), expected)
+    }
+  })
+
+  it('should throw an error on unresolved refs', async function () {
+    try {
+      const { dir } = fixture('unresolved-ref')
+      await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    } catch (err) {
+      assert.strictEqual(err.name, '@metalsmith/refs')
+      const expected = 'Unable to resolve ref "file:./inexistant.md" in file'
       assert.strictEqual(err.message.slice(0, expected.length), expected)
     }
   })

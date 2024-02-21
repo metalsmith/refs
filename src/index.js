@@ -11,6 +11,14 @@ const defaults = {
   pattern: '**'
 }
 
+const ns = '@metalsmith/refs'
+
+function error(msg) {
+  const err = new Error(msg)
+  err.name = ns
+  return err
+}
+
 /**
  * Normalize plugin options
  * @param {Options} [options]
@@ -36,7 +44,7 @@ const refProxyHandler = {
     return true
   },
   deleteProperty(target, key) {
-    if (key === 'refs' || !(key in target)) return false
+    if (key == 'refs') throw error(`Cannot access a refs' own refs from host file.`)
     return delete target[key]
   },
   ownKeys(target) {
@@ -51,7 +59,7 @@ const refProxyHandler = {
   },
   getOwnPropertyDescriptor(target, key) {
     const value = target[key]
-    return value
+    return Reflect.has(target, key)
       ? {
           value,
           writable: true,
@@ -130,20 +138,12 @@ function refs(options) {
             }
             break
           default:
-            done(
-              new Error(
-                '@metalsmith/refs - Unknown protocol "' +
-                  protocol +
-                  '" for file "' +
-                  metalsmith.path(metalsmith.source(), file.id) +
-                  '".'
-              )
-            )
+            done(error(`Unknown protocol "${protocol}" for file "${metalsmith.path(metalsmith.source(), path)}.`))
             return
         }
 
         if (!resolved) {
-          debug.warn('Unable to resolve ref "%s" in file "%s"', `${protocol}:${lookup}`, path)
+          done(error(`Unable to resolve ref "${protocol}:${lookup}" in file "${path}"`))
         }
       })
     }
