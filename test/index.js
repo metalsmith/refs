@@ -10,8 +10,13 @@ import plugin from '../src/index.js'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const { name } = JSON.parse(readFileSync(resolve(__dirname, '../package.json'), 'utf-8'))
 
-function fixture(p) {
-  return resolve(__dirname, 'fixtures', p)
+function fixture(dir) {
+  dir = resolve(__dirname, 'fixtures', dir)
+  return {
+    dir,
+    expected: resolve(dir, 'expected'),
+    actual: resolve(dir, 'build')
+  }
 }
 
 function toJSON(files) {
@@ -44,18 +49,16 @@ describe('@metalsmith/refs', function () {
   })
 
   it('should not crash the metalsmith build when using default options', async function () {
-    await Metalsmith(fixture('default')).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
-    equals(fixture('default/build'), fixture('default/expected'))
-    await Metalsmith(fixture('default')).env('DEBUG', process.env.DEBUG).use(plugin(true)).use(toJSON).build()
-    equals(fixture('default/build'), fixture('default/expected'))
+    let { actual, expected, dir } = fixture('default')
+    await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    equals(actual, expected)
+    await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin(true)).use(toJSON).build()
+    equals(actual, expected)
   })
 
   it('should provide reliable refs through a Proxy object', async function () {
-    const files = await Metalsmith(fixture('ref-proxy'))
-      .env('DEBUG', process.env.DEBUG)
-      .use(plugin())
-      .use(toJSON)
-      .build()
+    const { actual, expected, dir } = fixture('ref-proxy')
+    const files = await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
     const ref = files['index.json'].refs.about
     ref.temp = 'dynamic'
     Object.defineProperty(ref, 'added', { value: 'test' })
@@ -68,35 +71,36 @@ describe('@metalsmith/refs', function () {
     assert.throws(() => {
       Object.defineProperty(ref, 'refs', { value: {} })
     })
-    equals(fixture('ref-proxy/build'), fixture('ref-proxy/expected'))
+    equals(actual, expected)
   })
 
   it('should resolve absolute refs to metalsmith.source()', async function () {
-    await Metalsmith(fixture('absolute-refs')).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
-    equals(fixture('absolute-refs/build'), fixture('absolute-refs/expected'))
+    const { actual, expected, dir } = fixture('absolute-refs')
+    await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    equals(actual, expected)
   })
 
   it('should resolve relative and circular refs', async function () {
-    await Metalsmith(fixture('relative-refs')).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
-    equals(fixture('relative-refs/build'), fixture('relative-refs/expected'))
+    const { actual, expected, dir } = fixture('relative-refs')
+    await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    equals(actual, expected)
   })
 
   it('should resolve refs as "file:" when no protocol is given', async function () {
-    await Metalsmith(fixture('protocol-file-shortcut'))
-      .env('DEBUG', process.env.DEBUG)
-      .use(plugin())
-      .use(toJSON)
-      .build()
-    equals(fixture('protocol-file-shortcut/build'), fixture('protocol-file-shortcut/expected'))
+    const { actual, expected, dir } = fixture('protocol-file-shortcut')
+    await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    equals(actual, expected)
   })
 
   it('should resolve refs with the "id:" protocol', async function () {
-    await Metalsmith(fixture('fixed-ref')).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
-    equals(fixture('fixed-ref/build'), fixture('fixed-ref/expected'))
+    const { actual, expected, dir } = fixture('fixed-ref')
+    await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+    equals(actual, expected)
   })
 
   it('should resolve refs with the "metadata:" protocol', async function () {
-    await Metalsmith(fixture('metadata-ref'))
+    const { actual, expected, dir } = fixture('metadata-ref')
+    await Metalsmith(dir)
       .metadata({
         build: {
           date: new Date('2024-01-01'),
@@ -107,12 +111,13 @@ describe('@metalsmith/refs', function () {
       .use(plugin())
       .use(toJSON)
       .build()
-    equals(fixture('metadata-ref/build'), fixture('metadata-ref/expected'))
+    equals(actual, expected)
   })
 
   it('should throw an error on invalid protocols', async function () {
     try {
-      await Metalsmith(fixture('invalid-protocol')).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
+      const { dir } = fixture('invalid-protocol')
+      await Metalsmith(dir).env('DEBUG', process.env.DEBUG).use(plugin()).use(toJSON).build()
     } catch (err) {
       const expected = '@metalsmith/refs - Unknown protocol "invalid-protocol" for file'
       assert.strictEqual(err.message.slice(0, expected.length), expected)
