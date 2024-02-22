@@ -31,7 +31,7 @@
     "test": "test"
   },
   "author": "Kevin Van Lierde (https://webketje.com)",
-  "license": "MIT",
+  "license": "LGPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/metalsmith/refs/issues"
   },
