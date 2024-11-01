@@ -97,6 +97,7 @@ function refs(options) {
 
     fileList.forEach((entry) => {
       const [path, file] = entry
+      // normalize path so file id's are consistent across operating systems
       if (!file.id) file.id = path.replace(/\\/g, '/')
       if (file.refs) withRefs.push(entry)
     })
