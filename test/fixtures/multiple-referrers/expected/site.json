@@ -1,0 +1,19 @@
+{
+  "id": "site-data",
+  "title": "Metalsmith bare starter",
+  "lang": "en-US",
+  "generator": "Metalsmith",
+  "generatorurl": "https://metalsmith.io",
+  "nav": [
+    {
+      "id": "home",
+      "label": "Home",
+      "uri": ""
+    },
+    {
+      "id": "about",
+      "label": "About",
+      "uri": "about"
+    }
+  ]
+}

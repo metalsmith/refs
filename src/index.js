@@ -111,7 +111,9 @@ function refs(options) {
       Object.entries(file.refs).forEach(([name, ref]) => {
         // incorrectly set ref, or already substituted in case of a repeat run with 'tainted' files
         if (typeof ref !== 'string') {
-          debug.warn(`Skipping substitution for ref "${name}" in file "${metalsmith.path(metalsmith.source(), path)}". Ref is not a string`)
+          debug.warn(
+            `Skipping substitution for ref "${name}" in file "${metalsmith.path(metalsmith.source(), path)}". Ref is not a string`
+          )
           return
         }
         let delimPos = ref.indexOf(':')

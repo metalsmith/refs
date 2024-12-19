@@ -138,4 +138,14 @@ describe('@metalsmith/refs', function () {
       assert.strictEqual(err.message.slice(0, expected.length), expected)
     }
   })
+
+  it('should properly handle multiple files pointing to the same ref, and support circular refs', async function () {
+    const { actual, expected, dir } = fixture('multiple-referrers')
+    await Metalsmith(dir)
+      .env('DEBUG', process.env.DEBUG)
+      .use(plugin())
+      .use(toJSON)
+      .build()
+    equals(actual, expected)
+  })
 })
