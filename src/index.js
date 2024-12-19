@@ -137,9 +137,10 @@ function refs(options) {
             }
             break
           case 'id':
-            resolved = fileList.find((f) => f[1].id === lookup)
+            // fileList only contains the pattern-matched files for ref substitution in referring files.
+            // Search through the whole file list to match by id
+            resolved = Object.values(files).find((f) => f.id === lookup)
             if (resolved) {
-              resolved = resolved[1]
               file.refs[name] = new Proxy(resolved, refProxyHandler)
             }
             break
